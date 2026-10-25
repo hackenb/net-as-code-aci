@@ -1,0 +1,99 @@
+---
+apic:
+  access_policies:
+    vlan_pools:
+      - name: DEV-VLAN-POOL
+        allocation: static
+        ranges:
+          - from: 200
+            to: 250
+
+      - name: DEV-L3-VLAN-POOL
+        allocation: static
+        ranges:
+          - from: 1501
+            to: 1501
+
+    physical_domains:
+      - name: DEV-PHYSICAL-DOMAIN
+        vlan_pool: DEV-VLAN-POOL
+
+    routed_domains:
+      - name: DEV-L3-DOMAIN
+        vlan_pool: DEV-L3-VLAN-POOL
+
+    aaeps:
+      - name: DEV-AAEP
+        physical_domains:
+          - DEV-PHYSICAL-DOMAIN
+        routed_domains:
+          - DEV-L3-DOMAIN
+
+    leaf_interface_policy_groups:
+      - name: DEV-L3-IF-PG
+        type: access
+        aaep: DEV-AAEP
+        cdp_policy: system-cdp-disabled
+
+      - name: DEV-SERVER-VPC-PG
+        type: vpc
+        aaep: DEV-AAEP
+        lldp_policy: system-lldp-enabled
+        port_channel_policy: system-lacp-active
+
+    leaf_interface_profiles:
+      - name: LEAF201-INT-PROF
+        selectors:
+          - name: ETH1-21
+            policy_group: DEV-L3-IF-PG
+            port_blocks:
+              - name: ETH1-21
+                from_module: 1
+                from_port: 21
+                to_module: 1
+                to_port: 21
+      - name: LEAF202-INT-PROF
+      - name: LEAF201-202-INT-PROF
+        selectors:
+          - name: ETH1-22
+            policy_group: DEV-SERVER-VPC-PG
+            port_blocks:
+              - name: ETH1-22
+                from_module: 1
+                from_port: 22
+                to_module: 1
+                to_port: 22
+
+    leaf_switch_profiles:
+      - name: LEAF201
+        interface_profiles:
+          - LEAF201-INT-PROF
+        selectors:
+          - name: LEAF201-SEL
+            node_blocks:
+              - name: LEAF201-BLK
+                from: 201
+                to: 201
+
+      - name: LEAF202
+        interface_profiles:
+          - LEAF202-INT-PROF
+        selectors:
+          - name: LEAF202-SEL
+            node_blocks:
+              - name: LEAF202-BLK
+                from: 202
+                to: 202
+
+      - name: LEAF201-202
+        interface_profiles:
+          - LEAF201-202-INT-PROF
+        selectors:
+          - name: LEAF201-202-SEL
+            node_blocks:
+              - name: LEAF201-BLK
+                from: 201
+                to: 201
+              - name: LEAF202-BLK
+                from: 202
+                to: 202

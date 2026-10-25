@@ -1,0 +1,121 @@
+---
+apic:
+  tenants:
+    - name: DEV
+
+      vrfs:
+        - name: DEV-VRF
+
+      bridge_domains:
+        - name: 10.1.200.0_24
+          vrf: DEV-VRF
+          subnets:
+            - ip: 10.1.200.1/24
+
+        - name: 10.1.201.0_24
+          vrf: DEV-VRF
+          subnets:
+            - ip: 10.1.201.1/24
+
+        - name: 10.1.202.0_24
+          vrf: DEV-VRF
+          subnets:
+            - ip: 10.1.202.1/24
+
+      filters:
+        - name: WEB
+          entries:
+            - name: HTTP
+              ethertype: ip
+              protocol: tcp
+              destination_from_port: 80
+              destination_to_port: 80
+            - name: HTTPS
+              ethertype: ip
+              protocol: tcp
+              destination_from_port: 443
+              destination_to_port: 443
+        - name: SSH
+          entries:
+            - name: SSH
+              ethertype: ip
+              protocol: tcp
+              destination_from_port: 22
+              destination_to_port: 22
+        - name: MYSQL-3306
+          entries:
+            - name: MYSQL
+              ethertype: ip
+              protocol: tcp
+              destination_from_port: 3306
+              destination_to_port: 3306
+
+      contracts:
+        - name: WEB-CONTRACT
+          subjects:
+            - name: WEB
+              filters:
+                - filter: WEB
+        - name: SSH-CONTRACT
+          subjects:
+            - name: SSH
+              filters:
+                - filter: SSH
+        - name: MYSQL-3306-CONTRACT
+          subjects:
+            - name: MYSQL
+              filters:
+                - filter: MYSQL-3306
+
+      application_profiles:
+        - name: VLANS
+          endpoint_groups:
+            - name: VLAN200
+              bridge_domain: 10.1.200.0_24
+              physical_domains:
+                - DEV-PHYSICAL-DOMAIN
+              contracts:
+                consumers:
+                  - WEB-CONTRACT
+              static_ports:
+                - description: DEV server trunk VPC uplink
+                  node_id: 201
+                  node2_id: 202
+                  channel: DEV-SERVER-VPC-PG
+                  pod_id: 1
+                  vlan: 200
+                  mode: regular
+
+            - name: VLAN201
+              bridge_domain: 10.1.201.0_24
+              physical_domains:
+                - DEV-PHYSICAL-DOMAIN
+              contracts:
+                consumers:
+                  - MYSQL-3306-CONTRACT
+                providers:
+                  - WEB-CONTRACT
+              static_ports:
+                - description: DEV server trunk VPC uplink
+                  node_id: 201
+                  node2_id: 202
+                  channel: DEV-SERVER-VPC-PG
+                  pod_id: 1
+                  vlan: 201
+                  mode: regular
+
+            - name: VLAN202
+              bridge_domain: 10.1.202.0_24
+              physical_domains:
+                - DEV-PHYSICAL-DOMAIN
+              contracts:
+                providers:
+                  - MYSQL-3306-CONTRACT
+              static_ports:
+                - description: DEV server trunk VPC uplink
+                  node_id: 201
+                  node2_id: 202
+                  channel: DEV-SERVER-VPC-PG
+                  pod_id: 1
+                  vlan: 202
+                  mode: regular
