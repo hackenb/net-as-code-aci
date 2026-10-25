@@ -4,6 +4,8 @@
 
 This example is part of the Cisco [*Network as Code*](https://netascode.cisco.com) project. Its goal is to allow users to instantiate network fabrics in minutes using an easy to use, opinionated data model. It takes away the complexity of having to deal with references, dependencies or loops. By completely separating data (defining variables) from logic (infrastructure declaration), it allows the user to focus on describing the intended configuration while using a set of maintained and tested Terraform Modules without the need to understand the low-level ACI object model. More information can be found here: [https://netascode.cisco.com/solutions/aci/simple_example](https://netascode.cisco.com/solutions/aci/simple_example).
 
+Note that this repository is just a small example of how to use Csico Network as Code with ACI. The sample is based on the Cisco Dcloud demonstration 'Get Started with Cisco ACI 6.1'. Terraform is already installed on this demonstration so it should work right after cloning it (and after initializing the Fabric using NAC or UI).
+
 ## Current configuration
 
 This repository contains a working ACI deployment example for a DEV tenant with access-policy and tenant-side networking components configured through Net-as-Code YAML and applied with OpenTofu.
